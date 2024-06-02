@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Key Finder by Root1X</title>
+		<style>
+			html,
+			body {
+				font-family: Helvetica;
+				font-size: 1rem;
+			}
+
+			.content {
+				max-width: 1024px;
+				width: 100%;
+			}
+
+			.flex {
+				display: flex;
+			}
+
+			.flex-col {
+				flex-direction: column;
+			}
+
+			.flex-row {
+				flex-direction: row;
+			}
+
+			.justify-center {
+				justify-content: center;
+			}
+
+			.justify-end {
+				justify-content: flex-end;
+			}
+
+			.justify-between {
+				justify-content: space-between;
+			}
+
+			.self-center {
+				align-self: center;
+			}
+
+			.self-end {
+				align-self: flex-end;
+			}
+
+			.w-full {
+				width: 100% !important;
+			}
+
+			.w-half {
+				width: 50%;
+			}
+
+			.pb-2 {
+				padding-bottom: 0.5rem;
+			}
+
+			.pb-8 {
+				padding-bottom: 2rem;
+			}
+
+			.pt-2 {
+				padding-top: 0.5rem;
+			}
+
+			.pt-8 {
+				padding-top: 2rem;
+			}
+
+			.pl-2 {
+				padding-left: 0.5rem;
+			}
+
+			.w-1\/3 {
+				width: 33%;
+			}
+
+			.hr {
+				border-bottom: 1px solid #cccccc;
+			}
+
+			.small {
+				font-size: 1rem;
+			}
+
+			input[type='Text'] {
+				font-size: 1rem;
+				width: 240px;
+			}
+			button {
+				font-size: 1rem;
+				width: 244px;
+			}
+			.small-input {
+				width: 105px !important;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="flex justify-between">
+			<div class="w-1/3">
+				<a href="#" onclick="reloadPage();">Reload</a>
+				<a href="#" onclick="bruteForceAllEvents();">Brute Force All Events</a>
+				<a href="#" onclick="revealThirdWiki();">Set Third Wiki</a>
+			</div>
+			<div>
+				<a class="flex justify-center" href="#" onclick="reset();">Reset</a>
+			</div>
+			<div class="flex justify-end w-1/3">
+				<a href="#" onclick="captureNextSite();">Capture Next Site</a>
+			</div>
+		</div>
+
+		<div class="flex justify-center">
+			<div class="content">
+				<div class="hr pb-8">
+					<h1 class="flex justify-center">Key Finder&nbsp<span class="small">by Root1X</span></h1>
+				</div>
+				<div class="flex flex-col hr pt-8 pb-8">
+					<div class="flex flex-row justify-between pb-2">
+						<div class="flex flex-col">
+							<b class="self-center">Key 1:</b>
+							<input class="small-input" id="key1" onchange="updateKeys(); handleCombinedKeys();" type="text" />
+						</div>
+						<div class="flex flex-col">
+							<b class="self-center">Key 2:</b>
+							<input class="small-input" id="key2" onchange="updateKeys(); handleCombinedKeys();" type="text" />
+						</div>
+						<div class="flex flex-col">
+							<b class="self-center">Key 3:</b>
+							<input class="small-input" id="key3" onchange="updateKeys(); handleCombinedKeys();" type="text" />
+						</div>
+						<div class="flex flex-col">
+							<b class="self-center">Key 4:</b>
+							<input class="small-input" id="key4" onchange="updateKeys(); handleCombinedKeys();" type="text" />
+						</div>
+						<div class="flex flex-col">
+							<b class="self-center">Key 5:</b>
+							<input class="small-input" id="key5" onchange="updateKeys(); handleCombinedKeys();" type="text" />
+						</div>
+						<div class="flex flex-col">
+							<b class="self-center">Key 6:</b>
+							<input class="small-input" id="key6" onchange="updateKeys(); handleCombinedKeys();" type="text" />
+						</div>
+						<div class="flex flex-col">
+							<b class="self-center">Key 7:</b>
+							<input class="small-input" id="key7" onchange="updateKeys(); handleCombinedKeys();" type="text" />
+						</div>
+						<div class="flex flex-col">
+							<b class="self-center">Key 8:</b>
+							<input class="small-input" id="key8" onchange="updateKeys(); handleCombinedKeys();" type="text" />
+						</div>
+					</div>
+					<div class="flex flex-col">
+						<div class="flex justify-center pb-8">
+							<input class="w-full" id="combinedKeys" onclick="this.select();" type="text" />
+						</div>
+						<div id="siteName"></div>
+						<div id="keySites"></div>
+						<div id="sitesLeft" class="pt-2"></div>
+					</div>
+				</div>
+
+				<div class="hr pt-8 pb-8">
+					<div class="flex flex-col justify-between">
+						<div class="flex flex-col self-center justify-center">
+							<label class="self-center pb-2">Wiki Address:</label>
+							<input id="wikiAddress" type="text" />
+							<button onclick="captureWebsiteList();">Capture Website List</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="hr pt-8 pb-8">
+					<div class="flex flex-col">
+						<div class="flex flex-col" id="wikiSites"></div>
+						<div class="flex flex-col self-center pt-8">
+							<div class="pb-2">
+								<button onclick="captureAutomatically();">Capture Automatically</button>
+							</div>
+							<div>
+								<button onclick="captureNextSite();">Capture Next Site</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			var lockRelocate = true,
+				websiteLoadTime = 50,
+				availableSites = {
+					'Bug Friendly': ['faq.html', 'index.html', 'join.html', 'noid.html', 'store.html'],
+					THANATOS: ['index.html'],
+					'Cry Bitch': ['index.html', 'login.html'],
+					'Evil Collection': [
+						'ab.html',
+						'ab2.html',
+						'baby.html',
+						'chat.html',
+						'creepypics.html',
+						'index.html',
+						'link.html',
+						'memes.html',
+						'pics.html',
+						'randompics.html'
+					],
+					'Foot Doctor': ['homemade.html', 'index.html', 'myfavoritefeet.html', 'sendmepics.html'],
+					'Forgive Me': ['confess.html', 'index.html'],
+					'Grandmas Fantasy': ['index.html', 'older.html'],
+					Heirloom: [
+						'containers.html',
+						'error.html',
+						'index.html',
+						'order.html',
+						'pgpkey.html',
+						'quality.html',
+						'specials.html',
+						'walletid.html'
+					],
+					'Hidden Pleasure': [
+						'buy.html',
+						'index.html',
+						'message.html',
+						'range1.html',
+						'range2.html',
+						'range3.html',
+						'range4.html',
+						'range5.html',
+						'requestsale.html',
+						'signin.html'
+					],
+					IAMHERE: ['index.html'],
+					'I Love Cats': ['contact.html', 'index.html', 'mycats.html'],
+					Myriad: ['index.html'],
+					'Pay To Rape': ['faq.html', 'index.html', 'pay.html'],
+					EnCrave: ['gateopen.html', 'index.html'],
+					'Scream Bitch': ['index.html'],
+					'Thanks For Visiting': [
+						'babyshrimp.html',
+						'bar.html',
+						'black.html',
+						'creepy.html',
+						'donttalktome.html',
+						'evilmonster.html',
+						'face.html',
+						'fakemain.html',
+						'index.html',
+						'numbers.html',
+						'posture.html',
+						'slide.html',
+						'slide2.html'
+					],
+					'The Black Waves': ['index.html'],
+					'The End Of NY': ['index.html'],
+					'The Grey': ['centrum.html', 'inanis.html', 'index.html', 'interius.html', 'latus.html'],
+					'The Light Within': ['index.html', 'saved.html'],
+					'The Loogaroo': ['index.html'],
+					'The Prey': ['index.html'],
+					Vacation: ['index.html'],
+					'Warehouse 33': ['index.html', 'warehouse1.html', 'warehouse2.html', 'warehouse4.html'],
+					'We Rock': ['index.html'],
+					'YOU THERE?': ['index.html'],
+					'St Louis Arch': ['aliens.html', 'arch.html', 'index.html', 'whydie.html'],
+					'Brutal Underground': ['index.html', 'signup.html'],
+					'Cleaning Services': ['burial.html', 'freezing.html', 'index.html'],
+					'Deep Journal': ['index.html', 'page2.html', 'page3.html'],
+					'Dont Waste It': ['index.html', 'no.html', 'yes.html'],
+					'Drone Spy': ['index.html', 'spyforme.html', 'videos.html'],
+					'Evidence Locker': ['confiscated.html', 'contribute.html', 'index.html', 'leaked.html', 'purchase.html'],
+					Eye: ['index.html'],
+					'Father Donald': ['index.html', 'join.html'],
+					'Fortune Cookie': ['index.html'],
+					'Share Your Genitals': ['index.html'],
+					'The Granddaddy': ['contact.html', 'error.html', 'gallery.html', 'index.html'],
+					'Is Evil': ['index.html'],
+					'Keep Sake': ['index.html'],
+					'Kill For me': ['index.html', 'instructions.html', 'targets.html'],
+					'Little Friends': ['error.html', 'index.html'],
+					'Milk Supply': ['index.html', 'milkpictures.html'],
+					'Mortal Masks': ['how.html', 'index.html', 'order.html'],
+					Mutilation: ['index.html', 'join.html', 'login.html', 'nowallet.html'],
+					'Borrow My Daughter': ['index.html'],
+					'My Gut': ['buy.html', 'contact.html', 'index.html', 'shop.html', 'special.html'],
+					'Number Station': ['index.html'],
+					'Red Triangle': ['index.html'],
+					'Fifty Seven': ['index.html'],
+					Oneless: ['index.html'],
+					'Panty Sales': ['index.html'],
+					'Ave Satan': ['index.html'],
+					'THE MAGISTRI': ['enter.html', 'index.html', 'join.html', 'walk.html'],
+					'Order Of Nine': ['index.html', 'join.html'],
+					'The Bomb Maker': ['index.html'],
+					'The Doll Maker': ['enter.html', 'index.html'],
+					'The Hall': ['index.html'],
+					'Your Data': ['index.html']
+				};
+
+			window.onbeforeunload = function(event) {
+				if (lockRelocate) {
+					return 'Click on stay';
+				} else {
+					lockRelocate = true;
+				}
+			};
+
+			// Main functions
+			function bruteForceAllEvents() {
+				lockKeySitesInsert = true;
+
+				for (var i = 0; i < 20000; i++) {
+					_zfb_event(i, JSON.stringify(Array.prototype.slice.call(arguments)));
+				}
+
+				setTimeout(reloadPage, 1000);
+			}
+
+			function captureAutomatically() {
+				handleSelectedSites();
+				setValue('automatically', true);
+				setTimeout(reloadPage, websiteLoadTime);
+			}
+
+			function captureNextSite() {
+				var pageList = getValue('pageList'),
+					wikiSites = getValue('wikiSites');
+
+				if (!pageList || pageList.length == 0) handleSelectedSites();
+				pageList = getValue('pageList');
+
+				if (pageList.length > 0) {
+					var nextPage = pageList.shift();
+					setValue('pageList', pageList);
+
+					var siteName = Object.keys(wikiSites).filter(function(name) {
+						var siteData = wikiSites[name];
+						return siteData.pages.indexOf(nextPage) !== -1;
+					})[0];
+
+					setValue('siteName', siteName);
+					goToUrl(nextPage);
+					setTimeout(reloadPage, websiteLoadTime);
+				}
+			}
+
+			function captureWebsiteList() {
+				var wikiAddress = document.querySelector('#wikiAddress').value;
+				setValue('wikiAddress', wikiAddress);
+				setValue('needsReload', true);
+
+				goToUrl(wikiAddress);
+				setTimeout(reloadPage, websiteLoadTime);
+			}
+
+			function createSiteDiv(name, siteData) {
+				var div = document.createElement('div'),
+					input = document.createElement('input'),
+					label = document.createElement('label');
+
+				div.className = 'flex justify-center pb-2';
+
+				input.setAttribute('name', 'selectedSites[]');
+				input.setAttribute('id', name);
+				input.setAttribute('value', name);
+				input.setAttribute('type', 'checkbox');
+
+				if (siteData.scan) {
+					input.setAttribute('checked', 'true');
+				}
+
+				label.className = 'pl-2';
+				label.setAttribute('for', name);
+				label.innerText = name;
+
+				div.appendChild(input);
+				div.appendChild(label);
+
+				document.querySelector('#wikiSites').appendChild(div);
+			}
+
+			function getValue(key) {
+				return JSON.parse(localStorage.getItem(key));
+			}
+
+			function handleSiteName() {
+				var siteName = getValue('siteName');
+
+				if (siteName) {
+					document.querySelector('#siteName').innerHTML = '<b>Current site: </b>' + siteName;
+				}
+			}
+
+			function handleCombinedKeys() {
+				var keys = getValue('keys') || {},
+					combinedKeys = '';
+
+				for (var keyNumber = 1; keyNumber <= 8; keyNumber++) {
+					if (!keys[keyNumber]) return;
+
+					combinedKeys += keys[keyNumber].trim();
+				}
+
+				document.querySelector('#combinedKeys').value = combinedKeys;
+			}
+
+			function handleKeys() {
+				var keys = getValue('keys') || {},
+					keySites = getValue('keySites') || [];
+
+				Object.keys(keys).forEach(function(keyNumber) {
+					document.querySelector('#key' + keyNumber).value = keys[keyNumber];
+					document.querySelector('#key' + keyNumber).onchange();
+				});
+			}
+
+			function handleKeySites() {
+				var keySites = getValue('keySites') || [];
+
+				if (keySites.length > 0) {
+					document.querySelector('#keySites').innerHTML = '<b>Keys found on: </b>' + keySites.join(', ');
+				}
+			}
+
+			function handleSelectedSites() {
+				var selectedSites = document.querySelectorAll('input[type="checkbox"]:checked'),
+					wikiSites = getValue('wikiSites'),
+					pageList = [];
+
+				Object.keys(wikiSites).forEach(function(name) {
+					wikiSites[name].scan = '';
+				});
+
+				for (var i = 0; i < selectedSites.length; i++) {
+					var name = selectedSites[i].value;
+					wikiSites[name].scan = true;
+
+					wikiSites[name].pages.forEach(function(pageUrl) {
+						pageList.push(pageUrl);
+					});
+				}
+
+				setValue('wikiSites', wikiSites);
+				setValue('pageList', pageList);
+			}
+
+			function handleSitesLeft() {
+				var pageList = getValue('pageList') || [];
+
+				if (pageList.length > 0) {
+					document.querySelector('#sitesLeft').innerText = getValue('pageList').length + ' pages left to check';
+				}
+			}
+
+			function handleWikiAddress() {
+				var wikiAddress = getValue('wikiAddress');
+				document.querySelector('#wikiAddress').value = wikiAddress;
+			}
+
+			function handleWikiSites() {
+				var wikiSites = getValue('wikiSites') || {};
+
+				if (Object.keys(wikiSites).length > 0) {
+					Object.keys(wikiSites).forEach(function(name) {
+						var siteData = wikiSites[name];
+						createSiteDiv(name, siteData);
+					});
+				}
+			}
+
+			function reloadPage() {
+				lockRelocate = false;
+				location.reload();
+			}
+
+			function reset() {
+				localStorage.clear();
+				setTimeout(reloadPage, websiteLoadTime);
+			}
+
+			function setValue(key, value) {
+				localStorage.setItem(key, JSON.stringify(value));
+			}
+
+			function updateKeys() {
+				var keys = {};
+
+				for (var keyNumber = 1; keyNumber <= 8; keyNumber++) {
+					keys[keyNumber] = document.querySelector('#key' + keyNumber).value;
+				}
+
+				setValue('keys', keys);
+			}
+
+			// Function calls made to the game
+			function goToUrl(url) {
+				SiteClick(url);
+			}
+
+			function revealThirdWiki() {
+				puzzleSolved();
+			}
+
+			// Functions called by the game itself
+			function BuildWiki(wikiData) {
+				var oldWikiSites = getValue('wikiSites') || {},
+					wikiSites = {};
+
+				wikiData.forEach(function(siteData) {
+					siteData = siteData.split('|');
+
+					if (availableSites[siteData[1]]) {
+						availableSites[siteData[1]].forEach(function(fileName) {
+							var fullUrl = 'http://' + siteData[0] + '.ann/' + fileName;
+
+							if (oldWikiSites[siteData[1]]) {
+								wikiSites[siteData[1]] = oldWikiSites[siteData1];
+							} else if (!wikiSites[siteData[1]]) {
+								wikiSites[siteData[1]] = {
+									scan: true,
+									pages: []
+								};
+							}
+
+							wikiSites[siteData[1]].pages.push(fullUrl);
+						});
+					}
+				});
+
+				setValue('wikiSites', wikiSites);
+			}
+
+			function PickCFTag() {
+				var keySites = getValue('keySites') || [],
+					siteName = getValue('siteName');
+
+				if (siteName && keySites.indexOf(siteName) == -1) {
+					keySites.push(siteName);
+					setValue('keySites', keySites);
+				}
+			}
+
+			function PickCPTag() {
+				var keySites = getValue('keySites') || [],
+					siteName = getValue('siteName');
+
+				if (siteName && keySites.indexOf(siteName) == -1) {
+					keySites.push(siteName);
+					setValue('keySites', keySites);
+				}
+			}
+
+			function PickPTag(keyNumber, hash) {
+				var keys = getValue('keys') || {},
+					keySites = getValue('keySites') || [],
+					siteName = getValue('siteName');
+				keys[keyNumber] = hash;
+
+				if (siteName && keySites.indexOf(siteName) == -1) {
+					keySites.push(siteName);
+					setValue('keySites', keySites);
+				}
+
+				setValue('keys', keys);
+			}
+
+			function presentWiki(wikiAddress) {
+				document.querySelector('#wikiAddress').value = wikiAddress;
+				setValue('wikiAddress', wikiAddress);
+			}
+
+			//
+			handleCombinedKeys();
+			handleKeys();
+			handleKeySites();
+			handleSitesLeft();
+			handleWikiAddress();
+			handleWikiSites();
+
+			if (getValue('pageList') && getValue('pageList').length > 0) {
+				handleSiteName();
+			}
+
+			if (getValue('needsReload')) {
+				setValue('needsReload', '');
+				setTimeout(reloadPage, websiteLoadTime);
+			} else {
+				if (getValue('automatically')) {
+					if (getValue('pageList').length > 0) {
+						setTimeout(captureNextSite, websiteLoadTime);
+					} else {
+						setValue('automatically', '');
+						setValue('siteName', '');
+						setTimeout(bruteForceAllEvents, websiteLoadTime);
+					}
+				}
+			}
+		</script>
+	</body>
+</html>
